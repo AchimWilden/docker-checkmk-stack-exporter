@@ -2,6 +2,12 @@
 
 Der Exporter ueberwacht Docker-Compose-Projekte mit Checkmk, ohne in jedem Container einen Agenten zu installieren. Ein zentraler Agent-Endpunkt liefert die Containerdaten und ordnet sie per Piggyback den Checkmk-Hosts der Compose-Projekte zu. Ein bereits installierter System-Agent bleibt davon unabhaengig.
 
+## Warum dieses Projekt?
+
+Eine lange Liste einzelner Container ist im Monitoring schwer zu ueberblicken. Deshalb wird jedes Compose-Projekt als eigener Checkmk-Host dargestellt: Container und Ressourcen bleiben ihrem Stack zugeordnet, und Probleme lassen sich schneller dem betroffenen Projekt zuordnen.
+
+Der Exporter ist bewusst generisch gehalten und nicht auf bestimmte Anwendungen oder Compose-Projekte zugeschnitten. Er nutzt die Docker-Metadaten und wertet vorhandene Docker-Healthchecks aus: `healthy`, `unhealthy` und `starting` werden als Health-Status gemeldet, einschliesslich Fehlerzaehler und verfuegbarer Diagnoseausgabe. Gibt es fuer einen Container keinen Healthcheck, wird kein kuenstlicher Anwendungstest angenommen; der Container erhaelt trotzdem seinen State-Service.
+
 ## Was ueberwacht wird
 
 | Checkmk-Service | Inhalt |
