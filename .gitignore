@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+
+# Runtime-generated; may contain the local monitored stack inventory.
+host-sync/known_stacks.json
+host-sync/stacks.json
+host-sync/sync_config.json

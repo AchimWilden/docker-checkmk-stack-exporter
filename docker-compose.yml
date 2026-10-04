@@ -1,0 +1,53 @@
+name: docker-checkmk
+
+services:
+  docker-checkmk-socket-proxy:
+    image: tecnativa/docker-socket-proxy:v0.5.0
+    restart: unless-stopped
+    environment:
+      CONTAINERS: "1"
+      EVENTS: "0"
+      INFO: "0"
+      PING: "0"
+      POST: "0"
+      VERSION: "0"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - docker-api
+
+  docker-checkmk-exporter:
+    build:
+      context: ./exporter
+    restart: unless-stopped
+    depends_on:
+      - docker-checkmk-socket-proxy
+    environment:
+      DOCKER_API_HOST: docker-checkmk-socket-proxy
+      DOCKER_API_PORT: "2375"
+      AGENT_PORT: "6556"
+      CHECKMK_BASE_URL: https://checkmk.example.invalid/mysite
+      CHECKMK_HOST_FOLDER: Server/Docker
+      CHECKMK_CA_CERT: ""
+      CHECKMK_TLS_VERIFY: "true"
+      INVENTORY_MAX_AGE_SECONDS: "900"
+      HOST_SYNC_DIR: /host-sync
+      HOST_SYNC_TEMPLATE: /app/host_sync.py
+    ports:
+      - target: 6556
+        published: "8656"
+        host_ip: 127.0.0.1
+        protocol: tcp
+        mode: host
+    volumes:
+      - ./exporter/config.json:/app/config.json:ro
+      - ./host-sync:/host-sync:rw
+    networks:
+      - docker-api
+      - docker-agent
+
+networks:
+  docker-api:
+    internal: true
+  docker-agent:
+    driver: bridge
